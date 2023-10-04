@@ -1,0 +1,486 @@
+MySQL - szabványos lekérdező byekv, relációs adatbázis kezelésére van kitalálva
+- hálós - bármilyen formában tudunk keresni
+- hierarchikus - egy formában tudunk keresni, nagyon macerás
+- relációs - ennek megfelelően a reláció minden eleme (sora) egyedi
+
+szerkezet kialakítása: 
+- CREATE - létrehozés  
+- DROP - megszüntetés
+- ALTER - adat szerkezet modósítás
+- SHOW - adatszerkezet megjelenítés
+
+adatelérés:
+- SELECT - lekérdezés
+- UPDATE - már meglévő adat változtatása
+- DELETE - adattörlés 
+- INSERT - adat hozzáadása
+- LIKE - mintával való azonos utasítással keres
+- JOIN/ON - két tábla összekötése
+- NATURAL JOIN - automatikusan megkersi a két tábla közös értékét és összeköti
+
+- ZÁRADÉK - clausa
+- SELECT - mit akarunk látni,
+- FROM - a válaszhoz a szükséges adatok hol vannak
+- WHERE - forrásadatok soronkénti szűrés
+- GROUP BY - csoportosítás (oszlopos csoportosítás)
+- HAVING - csoportosított adatok szűrése
+- ORDER BY - eredmény rendezés
+- LIMIT - megjelenítendő sorok szabályozása
+
+-- 1. Mi MADAGASZKÁR fővárosa?
+SELECT `fovaros`
+FROM `orszagok` 
+WHERE `orszag` LIKE "Madagaszkár";
+ANTANANARIVO
+
+-- 2. Melyik ország fővárosa OUAGADOUGOU?
+SELECT `orszag`
+FROM `orszagok` 
+WHERE `fovaros` LIKE "OUAGADOUGOU";
+BURKINA FASO
+
+-- 3. Melyik ország autójele a TT?
+SELECT `orszag`
+FROM `orszagok` 
+WHERE `autojel` LIKE "TT";
+TRINIDAD ÉS TOBAGO
+
+-- 4. Melyik ország pénzének jele az SGD?
+SELECT `orszag`
+FROM `orszagok` 
+WHERE `penzjel` LIKE "SGD";
+SZINGAPÚR
+
+-- 5. Melyik ország nemzetközi telefon-hívószáma a 61?
+SELECT `orszag`
+FROM `orszagok` 
+WHERE `telefon` LIKE "61";
+AUSZTRÁLIA 
+
+-- 6. Mekkora területű Monaco?
+SELECT `terulet`
+FROM `orszagok` 
+WHERE `fovaros` LIKE "Monaco";
+1.95 km2
+ 
+-- 7. Hányan laknak Máltán?
+SELECT `nepesseg`*1000 
+FROM `orszagok`
+WHERE `orszag` LIKE "Málta";
+392 fő
+
+-- 8. Mennyi Japán népsűrűsége? 
+SELECT `nepesseg`/`terulet`*1000 AS nepsuruseg 
+FROM `orszagok`
+WHERE `orszag` LIKE "Japán";
+342.3031 fő
+
+-- 9. Hány lakosa van a Földnek?
+SELECT SUM(nepesseg)/1000000 AS milliard_fo
+FROM `orszagok`;
+7.0763 fő
+
+-- 10. Mennyi az országok területe összesen?
+SELECT SUM(terulet) AS terulet_osszesen
+FROM `orszagok`;
+133598224.66 km2
+
+-- 11. Mennyi az országok átlagos népessége?
+SELECT AVG(nepesseg) AS atlag_nepesseg
+FROM `orszagok`;
+36475.9691 fő
+
+-- 12. Mennyi az országok átlagos területe?
+SELECT AVG(terulet) AS atlag_terulet
+FROM `orszagok`;
+688650.642577 km2
+
+-- 13. Mennyi a Föld népsűrűsége?
+SELECT SUM(nepesseg)/ SUM(terulet) *1000 AS fold_nepsuruseg
+FROM `orszagok`;
+52.9673
+
+-- 14. Hány 1.000.000 km2-nél nagyobb területű ország van?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `terulet` > "1000000";
+29
+
+-- 15. Hány 100 km2-nél kisebb területű ország van?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `terulet` < "100";
+5
+
+-- 16. Hány 20.000 főnél kevesebb lakosú ország van?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `nepesseg` < "20";
+4
+
+-- 17. Hány országra igaz, hogy területe kisebb 100 km2-nél, vagy pedig a lakossága kevesebb 20.000 főnél?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `nepesseg` < "20" OR `terulet` < "100";
+6
+
+-- 18. Hány ország területe 50.000 és 150.000 km2 közötti?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `terulet` BETWEEN "50000" AND "150000";
+35
+
+-- 19. Hány ország lakossága 8 és 12 millió közötti?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `nepesseg` BETWEEN "8000" AND "12000";
+23
+
+-- 20. Mely fővárosok népesebbek 20 millió főnél?
+SELECT `fovaros`
+FROM `orszagok`
+WHERE `nepesseg` > "20000";
+51
+
+-- 21. Mely országok népsűrűsége nagyobb 500 fő/km2-nél?
+SELECT `orszag`
+FROM `orszagok`
+WHERE  `nepesseg`/`terulet`*100 > "500";
+MONACO
+SZINGAPÚR
+
+-- 22. Hány ország államformája köztársaság?
+SELECT `orszag`
+FROM `orszagok`
+WHERE `allamforma` LIKE "köztársaság";
+76
+
+-- 23. Mely országok pénzneme a kelet-karib dollár?
+SELECT `orszag`
+FROM `orszagok`
+WHERE `penznem` LIKE "kelet-karib dollár";
+6
+
+-- 24. Hány ország nevében van benne az "ORSZÁG" szó?
+SELECT `orszag`
+FROM `orszagok`
+WHERE `orszag` LIKE "%ORSZÁG";
+17
+
+-- 25. Mely országokban korona a hivatalos fizetőeszköz?
+SELECT `orszag`
+FROM `orszagok`
+WHERE `penznem` LIKE "%korona";
+5
+
+-- 26. Mennyi Európa területe?
+SELECT SUM(terulet)
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Európa%";
+6003122.36 km2
+
+-- 27. Mennyi Európa lakossága?
+SELECT SUM(nepesseg)
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Európa%";
+611609 fő
+
+-- 28. Mennyi Európa népsűrűsége?
+SELECT SUM(nepesseg)/ SUM(terulet)*100
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Európa%";
+10.1882 fő/km2
+
+-- 29. Hány ország van Afrikában?
+SELECT COUNT(orszag)
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Afrika%";
+53
+
+-- 30. Mennyi Afrika lakossága?
+SELECT SUM(nepesseg)
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Afrika%";
+1011582 fő
+
+-- 31. Mennyi Afrika népsűrűsége?
+SELECT SUM(nepesseg)/ SUM(terulet)*100
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Afrika%";
+3.3620 fő/km2
+
+-- 32.
+
+-- 33. Mely országok államformája hercegség, vagy királyság?
+SELECT `orszag` 
+FROM `orszagok`
+WHERE `allamforma` IN("hercegség", "királyság");
+SZAMOA
+LIECHTENSTEIN
+
+-- 34. Hány országnak nincs autójelzése?
+SELECT COUNT(orszag)
+FROM `orszagok`
+WHERE `autojel`IS null;
+0
+
+-- 35. Mennyi a váltószáma az aprópénznek azokban az országokban, ahol nem 100?
+SELECT `orszag`
+FROM `orszagok`
+WHERE `valtopenz` <> 100;
+7
+
+-- 36. Hány ország területe kisebb Magyarországénál?
+SELECT COUNT(*)
+FROM `orszagok`
+WHERE `terulet` < (SELECT `terulet` FROM `orszagok` WHERE `orszag`="Magyarország");
+86
+
+-- 37. Melyik a legnagyobb területű ország, és mennyi a területe?
+SELECT `orszag`, `terulet`
+FROM `orszagok`
+WHERE `terulet` = (SELECT MAX(terulet) FROM `orszagok`);
+OROSZORSZÁG
+17075400.00 km2
+
+-- 38. Melyik a legkisebb területű ország, és mennyi a területe?
+SELECT `orszag`, `terulet`
+FROM `orszagok`
+WHERE `terulet` = (SELECT MIN(terulet) FROM `orszagok`);
+VATIKÁN
+0.44 km2 
+
+-- 39. Melyik a legnépesebb ország, és hány lakosa van?
+SELECT `orszag`, `nepesseg`
+FROM `orszagok`
+WHERE `nepesseg` = (SELECT MAX(nepesseg) FROM `orszagok`);
+KÍNA
+1381000000 fő
+
+-- 40. Melyik a legkisebb népességű ország, és hány lakosa van?
+SELECT `orszag`, `nepesseg`
+FROM `orszagok`
+WHERE `nepesseg` = (SELECT MIN(nepesseg) FROM `orszagok`);
+VATIKÁN
+1000
+
+-- 41. Melyik a legsűrűbben lakott ország, és mennyi a népsűrűsége?
+SELECT `orszag`, SUM(nepesseg)/ SUM(terulet) AS nepsuruseg
+FROM `orszagok`
+ORDER BY nepsuruseg DESC
+LIMIT 1;
+SPANYOLORSZÁG
+0.0530
+
+-- 43. Melyik a legnagyobb afrikai ország és mekkora?
+SELECT `orszag`, `terulet`
+FROM `orszagok`
+WHERE `terulet` = (SELECT MAX(terulet) FROM `orszagok` WHERE `foldr_hely` LIKE "%Afrika%");
+SZUDÁN
+2505813.00 km2
+
+-- 44. Melyik a legkisebb amerikai ország és hányan lakják?
+SELECT `orszag`, `terulet`, `nepesseg`
+FROM `orszagok`
+WHERE `terulet` = (SELECT MIN(terulet) FROM `orszagok` WHERE `foldr_hely` LIKE "%Amerika%");
+SAINT KITTS ÉS NEVIS
+266.00 km2
+42000 fő
+
+-- 45. Melyik az első három legsűrűbben lakott "országméretű" ország (tehát nem város- vagy törpeállam)?
+SELECT `orszag`, `nepesseg`/`terulet`*1000 AS nepsuruseg
+FROM `orszagok`
+WHERE `foldr_hely` NOT LIKE "%városállamok%"
+AND `foldr_hely` NOT LIKE "%törpeállam%"
+ORDER BY nepsuruseg DESC
+LIMIT 0,3;
+SZINGAPÚR
+8424.3370 fő/km2
+VATIKÁN
+2272.7273 fő/km2
+MÁLTA
+1240.5063 fő/km2
+
+-- 46. Melyik a világ hat legnépesebb fővárosa?
+SELECT `fovaros`, `nepesseg`
+FROM `orszagok`
+ORDER BY `nepesseg` DESC
+LIMIT 6;
+6
+
+-- 47. Melyik tíz ország egy főre jutó GDP-je a legnagyobb?
+SELECT `orszag`, `gdp`
+FROM `orszagok`
+ORDER BY `gdp` DESC
+LIMIT 10;
+
+-- 48. Melyik tíz ország össz-GDP-je a legnagyobb?
+SELECT `orszag`, `gdp`/`nepesseg`/1000
+FROM `orszagok`
+ORDER BY `gdp` DESC
+LIMIT 10;
+
+-- 49. Melyik országban a legszegényebbek az emberek? 
+SELECT `orszag`, `nepesseg`, `gdp`
+FROM `orszagok`
+ORDER BY `gdp` ASC
+LIMIT 1;
+
+-- 50. Melyik a 40. legkisebb területű ország?
+SELECT `orszag`, `terulet`
+FROM `orszagok`
+ORDER BY `terulet`
+LIMIT 39,1;
+VANUATU
+14763.00
+
+-- 51. Melyik a 15. legkisebb népsűrűségű ország?
+SELECT `orszag`, `nepesseg`/`terulet`*100 as nepsuruseg
+FROM `orszagok`
+ORDER BY nepsuruseg DESC
+LIMIT 14,1;
+INDIA
+40.4552 fő/km2
+
+-- 52. Melyik a 61. legnagyobb népsűrűségű ország?
+SELECT `orszag`, `nepesseg`/`terulet`*100 as nepsuruseg
+FROM `orszagok`
+ORDER BY nepsuruseg ASC
+LIMIT 60,1;
+LETTORSZÁG
+3.7158 fő/km2
+
+-- 53. Melyik három ország területe hasonlít leginkább Magyaroszág méretéhez? 
+SELECT orszagok.orszag , ABS(orszagok.terulet-(SELECT orszagok.terulet FROM `orszagok` WHERE orszagok.orszag ="Magyarország")) AS elteres
+FROM `orszagok`
+WHERE orszagok.orszag != "Magyarország"
+ORDER BY elteres
+LIMIT 3;
+
+-- 54. Az emberek hányadrésze él Ázsiában? 
+SELECT SUM(nepesseg)/ (SELECT SUM(nepesseg) FROM orszagok) AS azsiaiak_araanya
+FROM `orszagok`
+WHERE `foldr_hely` LIKE "%Ázsia%";
+0.6331
+
+
+Egytablasok - Bérek2020
+
+SELECT berek2020.Részleg, berek2020.Neme, AVG(berek2020.Bér)
+FROM `berek2020`
+GROUP BY Részleg, Neme;
+
+Join_alap --mysql
+
+1. feladat ( t1, t2 közös részen lévő számok)
+
+SELECT t1.num, t2.num
+FROM t1 JOIN t2 ON t1.num = t2.num;
+
+2. feladat (t1, t2, t3 közös halmaz)
+
+SELECT t1.num, t2.num, t3.num
+FROM t1 JOIN t2 ON t1.num = t2.num
+		JOIN t3 ON t2.num = t3.num;
+
+Tagdíj adatbázis 
+
+-- 5.Mekkora összegű egy átlagos befizetés?
+SELECT ROUND(AVG(befiz.osszeg),0) as atlag
+FROM befiz;
+
+-- 6.Mennyi volt az eddigi legkisebb illetve legnagyobb befizetett összeg?
+SELECT MIN(befiz.osszeg) AS legkissebb, MAX(befiz.osszeg) as legnagyobb
+FROM befiz;
+
+-- 7. Hány darab befizetés szerepel a nyilvántartásban?
+SELECT COUNT(befiz.azon) AS befizetes
+FROM befiz;
+
+-- 8. Milyen összegeket, és mikor fizetett Török Bálint?
+SELECT befiz.datum, ugyfel.nev, befiz.osszeg
+FROM befiz JOIN ugyfel
+WHERE ugyfel.azon = befiz.azon 
+AND nev = "Török Bálint";
+
+-- 9. Mennyit fizetett összesen Nagy Károly?
+SELECT ugyfel.nev, SUM(befiz.osszeg)
+FROM ugyfel JOIN befiz
+WHERE ugyfel.azon = befiz.azon 
+AND ugyfel.nev = "Nagy Károly";
+
+-- 10. Mennyit fizettek összesen a nem magyarországi befizetők?
+SELECT ugyfel.orsz, SUM(befiz.osszeg)
+FROM ugyfel JOIN befiz
+ON ugyfel.azon = befiz.azon 
+WHERE ugyfel.orsz != "H"
+GROUP BY ugyfel.orsz;
+
+-- 11. Mennyit fizettek az egyes ügyfelek? 
+SELECT ugyfel.nev, SUM(befiz.osszeg)
+FROM ugyfel JOIN befiz ON ugyfel.azon = befiz.azon
+GROUP BY ugyfel.nev;
+
+-- 12. Mi az első három legtöbbet befizető ügyfél sorrendje? 
+SELECT ugyfel.nev, befiz.osszeg
+FROM ugyfel JOIN befiz ON ugyfel.azon = befiz.azon
+GROUP BY ugyfel.nev 
+ORDER BY befiz.osszeg DESC
+LIMIT 3;
+
+-- 13. Mekkora összegű befizetések történtek az év egyes hónapjaiban?
+SELECT year(befiz.datum) as ev,  MONTH(befiz.datum) AS honap, SUM(befiz.osszeg)
+FROM befiz 
+GROUP BY ev,  honap;
+
+-- 14. Melyek azok a napok, amikor több befizetés is történt?
+SELECT DATE(befiz.datum) AS napok, COUNT(befiz.osszeg) AS fizetett
+FROM befiz
+GROUP BY napok
+HAVING fizetett > 1;
+
+-- 15. Mely befizetések régebbiek egy évnél? 
+SELECT SUM(befiz.osszeg) 
+FROM befiz
+WHERE DATEDIFF(NOW(), befiz.datum) > 365;
+
+-- 16. Mennyi pénzt fizettek be az elmúlt 365 napban?
+SELECT SUM(befiz.osszeg) 
+FROM befiz
+WHERE DATEDIFF(NOW(), befiz.datum) < 365;
+
+-- 17. Ki a legidősebb ügyfél?
+SELECT MIN(ugyfel.szulev), ugyfel.nev
+FROM ugyfel;
+
+-- 18. Ki, és mikor követte el a legkisebb összegű befizetést?
+SELECT ugyfel.nev, befiz.datum, MIN(befiz.osszeg)
+FROM ugyfel JOIN befiz ON ugyfel.azon = befiz.azon;
+
+-- 19. Kinek a legkevesebb az összes befizetése?
+SELECT ugyfel.nev, SUM(befiz.osszeg) AS kicsi
+FROM ugyfel JOIN befiz ON ugyfel.azon = befiz.azon
+GROUP BY ugyfel.nev
+ORDER BY kicsi ASC
+Limit 1;
+
+-- 20. Van-e olyan ügyfél, aki még egyáltalán nem fizetett?
+SELECT ugyfel.nev
+FROM ugyfel
+WHERE ugyfel.azon NOT IN (SELECT befiz.azon FROM befiz);
+
+-- 21. Fejenként mennyit fizettek átlagosan az ügyfelek, ha az átlagba csak a fizető ügyfelek számítanak? 
+SELECT SUM(befiz.osszeg)/COUNT(DISTINCT- befiz.azon)
+FROM befiz;
+
+-- 22. Fejenként mennyit fizettek átlagosan az ügyfelek, ha az átlagba csak a fizető ügyfelek számítanak? 
+SELECT AVG(befiz.osszeg) AS atlagos_fizetes
+FROM befiz LEFT JOIN ugyfel ON ugyfel.azon = befiz.azon;
+
+-- 23. Kik azok az ügyfelek, akik az átlagosnál többet fizettek? 
+SELECT ugyfel.nev, SUM(befiz.osszeg) AS összeg
+FROM ugyfel, befiz
+WHERE ugyfel.azon = befiz.azon
+GROUP BY befiz.azon
+HAVING összeg  > (SELECT SUM(befiz.osszeg)/COUNT(DISTINCT befiz.azon) FROM befiz)
+ORDER BY 2 DESC;
